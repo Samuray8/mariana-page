@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Macropad social — 3D</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; background: #333333; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #c {
+      display: block;
+      width: min(100vw, 100vh);
+      height: min(100vw, 100vh);
+      max-width: 100%;
+      max-height: 100%;
+      touch-action: none;
+      cursor: grab;
+    }
+    #c:active { cursor: grabbing; }
+    #hint {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font: 12px system-ui, sans-serif;
+      color: rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hint">Arrastra para orbitar · rueda para zoom</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    /* ─── COLOR: FONDO DE LA ESCENA ─── */
+    const BG = 0x333333;
+
+    /* ─── COLORES: LEDs (rejilla 3×3, fila superior → inferior, izq → der) ───
+     *   Fila 1: verde, verde, verde
+     *   Fila 2: azul,  blanco, cian
+     *   Fila 3: verde, blanco, naranja
+     */
+    const LED_GRID = [
+      0x32e875, 0x32e875, 0x32e875,   // fila superior
+      0x3d6ee8, 0xf2f2f2, 0x5ee8ff,   // fila media
+      0x32e875, 0xf2f2f2, 0xff6e4f    // fila inferior
+    ];
+
+    /** >1 aleja un poco el encuadre (equivale a usar cámara más abierta del GLTF). */
+    const ORTHO_FRUSTUM_PADDING = 1.06;
+
+    /** 0 = cámara nombrada "Camera" del GLTF; 1 = segunda ortográfica del archivo (más zoom out). */
+    const GLTF_ORTHO_CAMERA_INDEX = 0;
+
+    const canvas = document.getElementById('c');
+    let camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 5000);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.88;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(BG);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envScene = new RoomEnvironment();
+    scene.environment = pmrem.fromScene(envScene, 0.032).texture;
+    pmrem.dispose();
+    envScene.dispose();
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minZoom = 0.35;
+    controls.maxZoom = 6;
+    controls.minDistance = 0.5;
+    controls.maxDistance = 200;
+
+    const clock = new THREE.Clock();
+    let mixer = null;
+
+    function layoutRenderer() {
+      const side = Math.max(1, Math.floor(Math.min(window.innerWidth, window.innerHeight)));
+      const pr = Math.min(window.devicePixelRatio, 2);
+      renderer.setPixelRatio(pr);
+      renderer.setSize(side, side, false);
+      canvas.style.width = `${side}px`;
+      canvas.style.height = `${side}px`;
+      if (camera.isOrthographicCamera) {
+        camera.updateProjectionMatrix();
+      } else if (camera.isPerspectiveCamera) {
+        camera.aspect = 1;
+        camera.updateProjectionMatrix();
+      }
+    }
+    layoutRenderer();
+
+    function removeGltfLights(root) {
+      const lights = [];
+      root.traverse((o) => {
+        if (o.isLight) lights.push(o);
+      });
+      lights.forEach((L) => L.parent?.remove(L));
+    }
+
+    function isUnderNode(o, named) {
+      let p = o;
+      while (p) {
+        if (p.name === named) return true;
+        p = p.parent;
+      }
+      return false;
+    }
+
+    function underToucheKey(o) {
+      let p = o.parent;
+      while (p) {
+        if (/^Touche \d$/.test(p.name)) return true;
+        p = p.parent;
+      }
+      return false;
+    }
+
+    function isUnderNodeFlex(o, prefix) {
+      let p = o;
+      while (p) {
+        if (p.name.startsWith(prefix)) return true;
+        p = p.parent;
+      }
+      return false;
+    }
+
+    function isUnderLeds(o, leds) {
+      if (!leds) return false;
+      let p = o;
+      while (p) {
+        if (p === leds) return true;
+        p = p.parent;
+      }
+      return false;
+    }
+
+    function setMeshMaterial(mesh, spec) {
+      const list = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      const mats = list.map(
+        () =>
+          new THREE.MeshStandardMaterial({
+            color: spec.color,
+            emissive: spec.emissive ?? 0x000000,
+            emissiveIntensity: spec.emissiveIntensity ?? 0,
+            metalness: spec.metalness,
+            roughness: spec.roughness,
+            envMapIntensity: spec.envMapIntensity ?? 0.6,
+            side: spec.side ?? THREE.FrontSide,
+            polygonOffset: spec.polygonOffset ?? false,
+            polygonOffsetFactor: spec.polygonOffsetFactor ?? 0,
+            polygonOffsetUnits: spec.polygonOffsetUnits ?? 0
+          })
+      );
+      list.forEach((m) => m.dispose?.());
+      mesh.material = mats.length === 1 ? mats[0] : mats;
+    }
+
+    /** Iguala aspecto del frustum ortográfico al lienzo cuadrado (evita estirar el modelo). */
+    function applySquareAspectToOrtho(cam) {
+      const w = cam.right - cam.left;
+      const h = cam.top - cam.bottom;
+      const cx = (cam.left + cam.right) / 2;
+      const cy = (cam.top + cam.bottom) / 2;
+      if (w > h) {
+        const nh = w;
+        cam.top = cy + nh / 2;
+        cam.bottom = cy - nh / 2;
+      } else {
+        const nw = h;
+        cam.left = cx - nw / 2;
+        cam.right = cx + nw / 2;
+      }
+    }
+
+    function padOrthoFrustum(cam, factor) {
+      const cx = (cam.left + cam.right) / 2;
+      const cy = (cam.top + cam.bottom) / 2;
+      const hw = ((cam.right - cam.left) / 2) * factor;
+      const hh = ((cam.top - cam.bottom) / 2) * factor;
+      cam.left = cx - hw;
+      cam.right = cx + hw;
+      cam.top = cy + hh;
+      cam.bottom = cy - hh;
+    }
+
+    function collectOrthoCameras(root) {
+      const list = [];
+      root.traverse((o) => {
+        if (o.isOrthographicCamera) list.push(o);
+      });
+      return list;
+    }
+
+    function pickGltfOrthoCamera(root) {
+      const all = collectOrthoCameras(root);
+      if (!all.length) return null;
+      if (GLTF_ORTHO_CAMERA_INDEX === 1 && all.length > 1) return all[1];
+      const named = all.find((c) => c.parent?.name === 'Camera');
+      return named ?? all[0];
+    }
+
+    function applyMacropadMaterials(root) {
+      const leds = root.getObjectByName('LEDS');
+
+      /* ─── COLOR: CARCASA / BASE METÁLICA (aluminio) ─── */
+      const alu = { color: 0x464449, metalness: 0.42, roughness: 0.64, envMapIntensity: 0.32 };
+
+      /* ─── COLOR: TORNILLOS ─── */
+      const aluScrew = { color: 0xc8ccd2, metalness: 0.52, roughness: 0.44, envMapIntensity: 0.38 };
+
+      /* ─── COLOR: PLACA OSCURA (base interior debajo de las teclas) ─── */
+      const darkPlate = {
+        color: 0x9a9a98,
+        emissive: 0x18161a,
+        emissiveIntensity: 0.055,
+        metalness: 0.02,
+        roughness: 0.98,
+        envMapIntensity: 0.035
+      };
+
+      /* ─── COLOR: TECLAS BLANCAS (keycaps) ─── */
+      const keyWhite = { color: 0xd0d0d0, metalness: 0, roughness: 0.93, envMapIntensity: 0.055 };
+
+      /* ─── COLOR: ÍCONO CORAZÓN ROJO ─── */
+      const iconRed = {
+        color: 0xe81d1d,
+        emissive: 0x480808,
+        emissiveIntensity: 0.045,
+        metalness: 0,
+        roughness: 0.92,
+        envMapIntensity: 0,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
+      };
+
+      /* ─── COLOR: ÍCONOS NEGROS (shuffle, chat-bubble) ─── */
+      const iconBlack = {
+        color: 0x09090b,
+        emissive: 0x000000,
+        emissiveIntensity: 0,
+        metalness: 0,
+        roughness: 0.98,
+        envMapIntensity: 0,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
+      };
+
+      /* ─── COLOR: TEXTO "FOLLOW" ─── */
+      const followText = {
+        color: 0x09090b,
+        metalness: 0,
+        roughness: 0.97,
+        envMapIntensity: 0,
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1
+      };
+
+      root.traverse((o) => {
+        if (!o.isMesh) return;
+        if (isUnderLeds(o, leds)) return;
+
+        const n = o.name;
+
+        if (n === 'Base') {
+          setMeshMaterial(o, alu);
+          return;
+        }
+        /* ─── COLOR: PLACA OSCURA ─── */
+        if (n === 'Base_2') {
+          setMeshMaterial(o, darkPlate);
+          return;
+        }
+        /* ─── COLOR: TORNILLOS (Vis, Vis_2, Vis_3, Vis_3_1) ─── */
+        if (n.startsWith('Vis')) {
+          setMeshMaterial(o, aluScrew);
+          return;
+        }
+        if (n === 'Text') {
+          setMeshMaterial(o, followText);
+          return;
+        }
+        if (isUnderNodeFlex(o, 'heart')) {
+          setMeshMaterial(o, iconRed);
+          return;
+        }
+        if (isUnderNode(o, 'shuffle')) {
+          setMeshMaterial(o, iconBlack);
+          return;
+        }
+        if (isUnderNode(o, 'chat-bubble-empty-solid')) {
+          setMeshMaterial(o, iconBlack);
+          return;
+        }
+
+        if (isUnderNode(o, 'Pot')) {
+          return;
+        }
+
+        /* ─── COLOR: TECLAS BLANCAS (Cube, Cube_1, Cube_2, Cube_3) ─── */
+        if (n === 'Cube' || n.startsWith('Cube_')) {
+          setMeshMaterial(o, keyWhite);
+          return;
+        }
+
+        /* ─── COLOR: MATERIAL POR DEFECTO (piezas sin nombre específico) ─── */
+        setMeshMaterial(o, {
+          color: 0x000000,
+          metalness: 0.12,
+          roughness: 0.78,
+          envMapIntensity: 0.14
+        });
+      });
+
+      function orderLedCells(ledsGroup) {
+        const kids = [...ledsGroup.children];
+        const items = kids.map((child) => {
+          child.updateMatrixWorld(true);
+          const b = new THREE.Box3().setFromObject(child);
+          const c = b.getCenter(new THREE.Vector3());
+          return { child, c };
+        });
+        if (items.length !== 9) return kids;
+
+        const span = (key) =>
+          Math.max(...items.map((i) => i.c[key])) - Math.min(...items.map((i) => i.c[key]));
+        const sx = span('x');
+        const sy = span('y');
+        const sz = span('z');
+        const axes = [
+          { key: 'x', s: sx },
+          { key: 'y', s: sy },
+          { key: 'z', s: sz }
+        ].sort((a, b) => b.s - a.s);
+        const rowKey = axes[0].key;
+        const colKey = axes[1].key;
+
+        const rowVals = items.map((i) => i.c[rowKey]);
+        const rowMin = Math.min(...rowVals);
+        const rowMax = Math.max(...rowVals);
+        const rowSpan = rowMax - rowMin;
+        const rowBand = rowSpan / 3;
+
+        function rowIndex(c) {
+          if (rowBand < 1e-8) return 0;
+          const t = (rowMax - c[rowKey]) / rowBand;
+          return Math.min(2, Math.max(0, Math.floor(t + 1e-5)));
+        }
+
+        items.sort((a, b) => {
+          const ra = rowIndex(a.c);
+          const rb = rowIndex(b.c);
+          if (ra !== rb) return ra - rb;
+          return a.c[colKey] - b.c[colKey];
+        });
+        return items.map((i) => i.child);
+      }
+
+      if (leds && leds.children.length) {
+        const cells = orderLedCells(leds);
+        cells.forEach((cell, i) => {
+          const hex = LED_GRID[i % LED_GRID.length];
+          cell.traverse((o) => {
+            if (!o.isMesh) return;
+            /* ─── COLOR: BRILLO/EMISIÓN DE CADA LED (usa colores de LED_GRID) ─── */
+            setMeshMaterial(o, {
+              color: hex,
+              emissive: hex,
+              emissiveIntensity: 0.5,   // intensidad del brillo LED
+              metalness: 0,
+              roughness: 1,
+              envMapIntensity: 0.04
+            });
+          });
+        });
+      }
+
+      const pot = root.getObjectByName('Pot');
+      if (pot) {
+        const ellipses = [];
+        pot.traverse((o) => {
+          if (!o.isMesh) return;
+          if (o.name === 'Cylinder') {
+            /* ─── COLOR: CILINDRO DEL POTENCIÓMETRO (perilla/knob) ─── */
+            setMeshMaterial(o, keyWhite);
+          } else if (o.name === 'Ellipse') {
+            o.updateMatrixWorld(true);
+            o.geometry?.computeBoundingSphere();
+            const r = o.geometry?.boundingSphere?.radius ?? 1;
+            ellipses.push({ mesh: o, r });
+          }
+        });
+        ellipses.sort((a, b) => a.r - b.r);
+        ellipses.forEach((e, idx) => {
+          const isDot = ellipses.length > 1 && idx === 0;
+          if (isDot) {
+            /* ─── COLOR: PUNTO INDICADOR DEL POTENCIÓMETRO ─── */
+            setMeshMaterial(e.mesh, {
+              color: 0x0a0a0c,
+              metalness: 0,
+              roughness: 0.95,
+              envMapIntensity: 0
+            });
+          } else {
+            /* ─── COLOR: ELIPSE / ARO DEL POTENCIÓMETRO ─── */
+            setMeshMaterial(e.mesh, keyWhite);
+          }
+        });
+      }
+    }
+
+    /** Iluminación contenida: no dominar sobre la paleta de materiales. */
+    function addKeyLights(center, size, root) {
+      const extent = Math.max(size.x, size.y, size.z, 1e-6);
+      scene.add(new THREE.AmbientLight(0x909499, 0.24));
+      scene.add(new THREE.HemisphereLight(0xc4cad0, 0x22252c, 0.32));
+
+      const key = new THREE.DirectionalLight(0xffffff, 0.78);
+      key.position.set(center.x - extent * 1.12, center.y + extent * 1.75, center.z + extent * 0.82);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.camera.near = 0.05;
+      key.shadow.camera.far = Math.max(extent * 30, 50);
+      const sh = extent * 1.4;
+      key.shadow.camera.left = -sh;
+      key.shadow.camera.right = sh;
+      key.shadow.camera.top = sh;
+      key.shadow.camera.bottom = -sh;
+      key.shadow.bias = -0.00015;
+      key.shadow.normalBias = 0.02;
+      key.target.position.copy(center);
+      scene.add(key.target);
+      scene.add(key);
+
+      const fill = new THREE.DirectionalLight(0xe8eef5, 0.2);
+      fill.position.set(center.x + extent * 0.95, center.y + extent * 0.5, center.z - extent * 0.6);
+      scene.add(fill);
+
+      const bounce = new THREE.DirectionalLight(0xffd0dc, 0.12);
+      bounce.position.set(center.x + extent * 0.15, center.y - extent * 0.48, center.z + extent * 0.32);
+      scene.add(bounce);
+
+      const pink = new THREE.PointLight(0xff8a9e, 0.92, extent * 12);
+      pink.position.set(center.x, center.y + extent * 0.15, center.z + extent * 0.26);
+      scene.add(pink);
+
+      const pinkFill = new THREE.PointLight(0xffc4cf, 0.38, extent * 14);
+      pinkFill.position.set(center.x - extent * 0.2, center.y + extent * 0.10, center.z + extent * 0.4);
+      scene.add(pinkFill);
+
+      const rim = new THREE.PointLight(0xc8f5e8, 0.22, extent * 13);
+      rim.position.set(center.x + extent * 0.38, center.y + extent * 0.48, center.z - extent * 0.42);
+      scene.add(rim);
+
+      if (root) {
+        const ledGrp = root.getObjectByName('LEDS');
+        if (ledGrp) {
+          ledGrp.updateMatrixWorld(true);
+          const kids = [...ledGrp.children];
+          kids.forEach((cell, i) => {
+            cell.updateMatrixWorld(true);
+            const cb = new THREE.Box3().setFromObject(cell);
+            const cc = cb.getCenter(new THREE.Vector3());
+            const hex = LED_GRID[i % LED_GRID.length];
+            const ledLight = new THREE.PointLight(hex, 0.1, extent * 0.1);
+            ledLight.position.copy(cc).add(new THREE.Vector3(0, extent * 0.06, 0));
+            scene.add(ledLight);
+          });
+        }
+      }
+    }
+
+    new GLTFLoader().load(
+      './social_media_interactions_keyboard.gltf',
+      (gltf) => {
+        scene.add(gltf.scene);
+        gltf.scene.updateMatrixWorld(true);
+
+        removeGltfLights(gltf.scene);
+        applyMacropadMaterials(gltf.scene);
+
+        const box = new THREE.Box3().setFromObject(gltf.scene);
+        const target = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const md = Math.max(size.x, size.y, size.z, 1e-6);
+
+        addKeyLights(target, size, gltf.scene);
+
+        const srcOrtho = pickGltfOrthoCamera(gltf.scene);
+        if (srcOrtho) {
+          srcOrtho.updateMatrixWorld(true);
+          const near = Math.max(0.01, srcOrtho.near);
+          const far = srcOrtho.far > near ? srcOrtho.far : 100000;
+          const next = new THREE.OrthographicCamera(
+            srcOrtho.left,
+            srcOrtho.right,
+            srcOrtho.top,
+            srcOrtho.bottom,
+            near,
+            far
+          );
+          applySquareAspectToOrtho(next);
+          padOrthoFrustum(next, ORTHO_FRUSTUM_PADDING);
+          next.updateProjectionMatrix();
+
+          const _p = new THREE.Vector3();
+          const _q = new THREE.Quaternion();
+          const _s = new THREE.Vector3();
+          srcOrtho.matrixWorld.decompose(_p, _q, _s);
+          next.position.copy(_p);
+          next.quaternion.copy(_q);
+          next.scale.set(1, 1, 1);
+          next.updateMatrixWorld(true);
+
+          if (srcOrtho.parent) srcOrtho.parent.remove(srcOrtho);
+
+          camera = next;
+          controls.object = camera;
+          controls.target.copy(target);
+          controls.update();
+        } else {
+          console.warn('social.html: sin OrthographicCamera en el GLTF; usando perspectiva.');
+          const pc = new THREE.PerspectiveCamera(45, 1, 0.01, 500000);
+          const dist = md * 2.05;
+          pc.position.set(target.x + dist * 0.48, target.y + dist * 0.42, target.z + dist * 0.54);
+          pc.lookAt(target);
+          camera = pc;
+          controls.object = camera;
+          controls.target.copy(target);
+          controls.update();
+        }
+
+        gltf.scene.traverse((o) => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+          }
+        });
+
+        if (gltf.animations?.length) {
+          mixer = new THREE.AnimationMixer(gltf.scene);
+          gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
+        }
+
+        layoutRenderer();
+      },
+      undefined,
+      (e) => {
+        console.error(e);
+        document.getElementById('hint').textContent =
+          'Error al cargar el modelo · abre con servidor local (p. ej. npx serve)';
+      }
+    );
+
+    window.addEventListener('resize', () => {
+      layoutRenderer();
+    });
+
+    function tick() {
+      requestAnimationFrame(tick);
+      const dt = clock.getDelta();
+      if (mixer) mixer.update(dt);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    tick();
+  </script>
+</body>
+</html>

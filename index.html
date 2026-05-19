@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mariana Ortega — Sales Architect</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Fondo decorativo -->
+  <div class="bg-noise"></div>
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <!-- ======= NAV ======= -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <img src="/img/logo-circular.svg" alt="MO Logo">
+        <span>Mariana<em>Ortega</em></span>
+      </a>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#problema">El Problema</a></li>
+        <li><a href="#pilares">Servicios</a></li>
+        <li><a href="#resultados">Resultados</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <a href="#contacto" class="btn-cta nav-cta">
+          Auditoría Gratis <i data-lucide="arrow-up-right"></i>
+        </a>
+        <button class="burger" id="burger" aria-label="Menú">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Menú Mobile -->
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="mobile-close" id="mobile-close"><i data-lucide="x"></i></button>
+    <nav class="mobile-nav">
+      <a href="#problema" class="m-link">El Problema</a>
+      <a href="#pilares" class="m-link">Servicios</a>
+      <a href="#resultados" class="m-link">Resultados</a>
+      <a href="#proceso" class="m-link">Proceso</a>
+      <a href="#contacto" class="m-link">Contacto</a>
+    </nav>
+    <a href="#contacto" class="btn-cta m-link">Solicitar Auditoría <i data-lucide="arrow-up-right"></i></a>
+  </div>
+
+  <!-- ======= HERO ======= -->
+  <header class="hero" id="hero">
+    <!-- Decoración -->
+    <div class="hero-deco-circle hero-deco-1"></div>
+    <div class="hero-deco-circle hero-deco-2"></div>
+    <div class="hero-deco-dot hero-dot-1"></div>
+    <div class="hero-deco-dot hero-dot-2"></div>
+
+    <div class="hero-inner container">
+      <!-- Contenido -->
+      <div class="hero-content reveal" data-delay="0">
+        <div class="hero-badge">
+          <span class="dot-live"></span>
+          Sales Architecture · Digital Growth
+        </div>
+
+        <h1 class="hero-title">
+          Tu negocio merece<br>
+          <span class="accent">clientes reales,</span><br>
+          <span class="hero-typewriter-slot">
+            <span class="accent-coral" id="typewriter-line">no likes vacíos.</span>
+          </span>
+        </h1>
+
+        <p class="hero-sub">
+          Construimos ecosistemas de venta que convierten atención en ingresos medibles. Estrategia de marketing, automatización y resultados en 48 horas.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#contacto" class="btn-cta">
+            Auditoría de Ventas Gratis <i data-lucide="arrow-up-right"></i>
+          </a>
+          <a href="#resultados" class="btn-outline-white">
+            Ver casos reales <i data-lucide="chevron-down"></i>
+          </a>
+        </div>
+
+        <div class="hero-proof reveal" data-delay="400">
+          <div class="hero-proof-avatars">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80" alt="">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80" alt="">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=80" alt="">
+          </div>
+          <div class="hero-proof-text">
+            <strong>+127 negocios creciendo ahora</strong>
+            ROI promedio de 340% en 90 días
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual — escena vectorial marketing -->
+      <div class="hero-visual reveal" data-delay="300">
+        <div class="hero-vector-app" id="hero-vector-app">
+          <div class="hero-stage-wrap" id="hero-stage-wrap">
+            <svg class="hero-stage" id="hero-stage" viewBox="0 0 810 1012.49997" preserveAspectRatio="xMidYMid meet" aria-label="Escena de marketing y crecimiento">
+              <g id="hero-scene-layers"></g>
+              <g id="hero-scene-objects" class="is-hidden"></g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======= TICKER ======= -->
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker">
+      <span><i data-lucide="zap"></i> Automatización IA</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="map-pin"></i> SEO Local · Google Maps</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="target"></i> Meta Ads Partner</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="video"></i> Video Estratégico</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="credit-card"></i> Fidelización Digital</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="trending-up"></i> ROI Medible</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="zap"></i> Automatización IA</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="map-pin"></i> SEO Local · Google Maps</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="target"></i> Meta Ads Partner</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="video"></i> Video Estratégico</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="credit-card"></i> Fidelización Digital</span>
+      <span class="sep">✦</span>
+      <span><i data-lucide="trending-up"></i> ROI Medible</span>
+    </div>
+  </div>
+
+  <!-- ======= PROBLEMA ======= -->
+  <section class="section section-light problema" id="problema">
+    <div class="container">
+      <h2 class="section-title reveal">
+        Pagar poco por "gestionar<br>las redes" <em>te está costando</em><br>una fortuna.
+      </h2>
+    </div>
+  </section>
+
+  <!-- ======= PILARES / SERVICIOS ======= -->
+  <section class="section section-alt pilares" id="pilares">
+    <div class="container">
+      <div class="steps-intro">
+        <div>
+          <div class="section-eyebrow reveal">Nuestros servicios</div>
+          <h2 class="section-title reveal" data-delay="100">
+            Un motor de ventas<br><em>que trabaja 24/7</em><br>por tu negocio.
+          </h2>
+          <p class="section-sub reveal" data-delay="200">
+            Cuatro sistemas integrados que juntos crean un ecosistema de adquisición y retención que tu competencia envidiaría.
+          </p>
+        </div>
+        <div class="reveal" data-delay="100">
+          <div class="steps-big-number">4</div>
+        </div>
+      </div>
+
+      <!-- Bento asimétrico -->
+      <div class="pilares-grid reveal" data-delay="300">
+
+        <div class="pilar-card style-teal pilar-1">
+          <span class="pilar-num">01</span>
+          <div class="pilar-icon"><i data-lucide="zap"></i></div>
+          <h3>Automatización con IA</h3>
+          <p>Flujos inteligentes que responden, califican y cierran leads mientras tú duermes. WhatsApp, email y SMS perfectamente integrados para no perder ninguna oportunidad.</p>
+          <span class="pilar-tag">Respuesta 24/7</span>
+        </div>
+
+        <div class="pilar-card style-light pilar-2">
+          <span class="pilar-num">02</span>
+          <div class="pilar-icon"><i data-lucide="map-pin"></i></div>
+          <h3>Dominio en Google Maps</h3>
+          <p>Optimización técnica de GMB para aparecer primero cuando alguien busca tu servicio en tu ciudad. Más reseñas, más llamadas, más clientes.</p>
+          <span class="pilar-tag">SEO Local</span>
+        </div>
+
+        <div class="pilar-card style-coral pilar-3">
+          <span class="pilar-num">03</span>
+          <div class="pilar-icon"><i data-lucide="credit-card"></i></div>
+          <h3>Fidelización Digital</h3>
+          <p>Tarjetas de fidelización en el Wallet del móvil. Notificaciones push directas al cliente sin necesidad de apps. El marketing más cercano que existe.</p>
+          <span class="pilar-tag">Wallet Nativo</span>
+        </div>
+
+        <div class="pilar-card style-teal pilar-4">
+          <span class="pilar-num">04</span>
+          <div class="pilar-icon"><i data-lucide="video"></i></div>
+          <h3>Video de Alta Conversión</h3>
+          <p>Reels y Shorts con ganchos psicológicos testados que retienen, convierten y posicionan tu autoridad de marca. Cada segundo cuenta para captar la atención de tu cliente ideal.</p>
+          <span class="pilar-tag">Alta Conversión</span>
+        </div>
+
+      </div>
+
+      <!-- Métricas integradas -->
+      <div class="pilares-metrics reveal" data-delay="400">
+        <div class="pm-item">
+          <span class="pm-val" data-count="340" data-suffix="%">0%</span>
+          <span class="pm-lbl">ROI Promedio</span>
+          <div class="pm-bar"><div class="pm-bar-fill" style="width:85%"></div></div>
+        </div>
+        <div class="pm-item">
+          <span class="pm-val" data-count="60" data-suffix="%" data-prefix="-">0%</span>
+          <span class="pm-lbl">Reducción Coste/Lead</span>
+          <div class="pm-bar"><div class="pm-bar-fill" style="width:60%"></div></div>
+        </div>
+        <div class="pm-item">
+          <span class="pm-val" data-count="48" data-suffix="h">0h</span>
+          <span class="pm-lbl">Primer Lead</span>
+          <div class="pm-bar"><div class="pm-bar-fill" style="width:93%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= RESULTADOS ======= -->
+  <section class="section section-light resultados" id="resultados">
+    <div class="container">
+      <div class="section-eyebrow reveal">Prueba social</div>
+      <h2 class="section-title reveal" data-delay="100">
+        Lo que dicen quienes<br>ya <em>están creciendo.</em>
+      </h2>
+      <p class="section-sub reveal" data-delay="150">Resultados reales de negocios reales. Sin filtros ni exageraciones.</p>
+
+      <!-- Testimonios -->
+      <div class="testimonials-grid reveal" data-delay="250">
+
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testi-quote">"Llevaba dos años pagando por redes sociales sin ver resultados. Mariana cambió el enfoque completamente. Ahora mis clientes me encuentran a mí."</p>
+          <div class="testi-result"><i data-lucide="trending-up"></i> +210% reservas en 60 días</div>
+          <div class="testi-author">
+            <div class="testi-avatar">LC</div>
+            <div>
+              <span class="testi-name">Laura Castillo</span>
+              <span class="testi-biz">Clínica Dental Elite, Madrid</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testi-quote">"El sistema de automatización que nos montaron trabaja solo. Recibimos leads cualificados a las 3am sin que nadie en el equipo esté despierto."</p>
+          <div class="testi-result"><i data-lucide="users"></i> 3x leads en el primer mes</div>
+          <div class="testi-author">
+            <div class="testi-avatar">MR</div>
+            <div>
+              <span class="testi-name">Marco Reyes</span>
+              <span class="testi-biz">Estudio Reformas Premium</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testi-quote">"La tarjeta de fidelización en el móvil fue un antes y un después. Mis clientes vuelven más y gastan más cada vez. ROI brutal."</p>
+          <div class="testi-result"><i data-lucide="repeat"></i> 4.8x retención de clientes</div>
+          <div class="testi-author">
+            <div class="testi-avatar">AP</div>
+            <div>
+              <span class="testi-name">Ana Pérez</span>
+              <span class="testi-biz">Restaurante & Catering Pérez</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Mockups -->
+      <h3 class="section-title reveal" data-delay="0" style="font-size: 1.8rem; margin-bottom: 0.5rem;">
+        Casos de <em>éxito visuales.</em>
+      </h3>
+      <p class="section-sub reveal" data-delay="100" style="margin-bottom: 3rem;">Pasa el cursor sobre los dispositivos para descubrir la campaña detrás del resultado.</p>
+
+      <div class="mockups-grid reveal" data-delay="200">
+        <!-- MÓVIL -->
+        <div class="mockup-wrapper">
+          <div class="mockup-header">
+            <h3><i data-lucide="instagram"></i> Social Funnels</h3>
+            <div class="mockup-controls">
+              <button id="mob-prev"><i data-lucide="chevron-left"></i></button>
+              <button id="mob-next"><i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+          <a href="#" target="_blank" class="mobile-mockup" id="mobile-mockup">
+            <div class="mockup-base">
+              <img id="mob-bg-img" src="" alt="Fondo">
+              <div class="mockup-tint"></div>
+              <div class="link-icon"><i data-lucide="external-link"></i></div>
+            </div>
+            <div class="mockup-overlay" id="mob-overlay">
+              <img id="mob-top-img" src="" alt="Frente">
+            </div>
+            <div class="mobile-notch"></div>
+          </a>
+          <p class="mockup-title" id="mob-title"></p>
+        </div>
+
+        <!-- WEB -->
+        <div class="mockup-wrapper">
+          <div class="mockup-header">
+            <h3><i data-lucide="monitor"></i> Web & Embudos</h3>
+            <div class="mockup-controls">
+              <button id="web-prev"><i data-lucide="chevron-left"></i></button>
+              <button id="web-next"><i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+          <a href="#" target="_blank" class="web-mockup" id="web-mockup">
+            <div class="mockup-base">
+              <img id="web-bg-img" src="" alt="Fondo">
+              <div class="mockup-tint"></div>
+              <div class="link-icon"><i data-lucide="external-link"></i></div>
+            </div>
+            <div class="mockup-overlay" id="web-overlay">
+              <img id="web-top-img" src="" alt="Frente">
+            </div>
+            <div class="browser-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div class="url-bar"><i data-lucide="shield-check"></i> <span id="web-link-text"></span></div>
+            </div>
+          </a>
+          <p class="mockup-title" id="web-title"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= PROCESO ======= -->
+  <section class="section proceso" id="proceso">
+    <div class="container">
+      <div class="section-eyebrow light reveal">Cómo trabajamos</div>
+      <h2 class="section-title on-dark reveal" data-delay="100">
+        De <em>cero a resultados</em><br>en 4 pasos.
+      </h2>
+      <p class="section-sub on-dark reveal" data-delay="150">
+        Sin burocracia, sin reuniones infinitas. Ejecución rápida y resultados desde la primera semana.
+      </p>
+
+      <div class="proceso-steps reveal" data-delay="250">
+
+        <div class="proceso-step">
+          <div class="paso-num">1</div>
+          <h4>Auditoría Estratégica</h4>
+          <p>Analizamos tu negocio, tu competencia y detectamos todas las fugas de ventas.</p>
+          <span class="paso-days">Día 1–2</span>
+        </div>
+
+        <div class="proceso-step">
+          <div class="paso-num">2</div>
+          <h4>Plan de Acción</h4>
+          <p>Diseñamos tu ecosistema personalizado con objetivos claros y KPIs medibles.</p>
+          <span class="paso-days">Día 3–7</span>
+        </div>
+
+        <div class="proceso-step">
+          <div class="paso-num">3</div>
+          <h4>Implementación</h4>
+          <p>Activamos todos los sistemas: automatización, contenido, ads y fidelización.</p>
+          <span class="paso-days">Día 8–20</span>
+        </div>
+
+        <div class="proceso-step">
+          <div class="paso-num">4</div>
+          <h4>Escala y Optimiza</h4>
+          <p>Medimos todo, optimizamos lo que funciona y escalamos para multiplicar resultados.</p>
+          <span class="paso-days">Día 21+</span>
+        </div>
+
+      </div>
+
+      <div class="proceso-divider reveal" data-delay="350">
+        <p>¿Listo para pasar de likes a facturación real?</p>
+        <a href="#contacto" class="btn-cta">
+          Empieza hoy — Es gratis <i data-lucide="arrow-up-right"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= STUDIO CREATIVO ======= -->
+  <section class="section creative section-alt" id="creative">
+    <div class="container">
+      <div class="section-eyebrow reveal">Content Lab</div>
+      <h2 class="section-title reveal" data-delay="100">Contenido que <em>vende,</em><br>no que decora.</h2>
+      <p class="section-sub reveal" data-delay="200">Cada vídeo, cada post, cada pieza tiene un objetivo concreto: mover a la acción.</p>
+      <div class="video-carousel reveal" data-delay="300" id="videos-container"></div>
+    </div>
+  </section>
+
+  <!-- ======= FAQ ======= -->
+  <section class="section section-light faq">
+    <div class="container">
+      <div class="faq-inner">
+        <!-- Columna izquierda -->
+        <div class="faq-left">
+          <div class="section-eyebrow reveal">Preguntas frecuentes</div>
+          <h2 class="section-title reveal" data-delay="100">Resolvemos<br>tus <em>dudas.</em></h2>
+          <p class="section-sub reveal" data-delay="150">¿Tienes más preguntas? Escríbenos y te respondemos en menos de 24 horas.</p>
+          <div class="faq-cta-box reveal" data-delay="200">
+            <h4>¿Dudas específicas?</h4>
+            <p>Cuéntanos tu caso concreto y te preparamos una propuesta personalizada sin compromiso.</p>
+            <a href="#contacto" class="btn-cta" style="font-size:0.85rem; padding: 0.65rem 1.25rem;">
+              Hablar con Mariana <i data-lucide="message-circle"></i>
+            </a>
+          </div>
+        </div>
+        <!-- Columna derecha -->
+        <div class="faq-list reveal" data-delay="200" id="faq-container"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= CONTACTO ======= -->
+  <section class="section contact" id="contacto">
+    <div class="contact-bg-art"></div>
+    <div class="container">
+      <div class="contact-inner">
+        <!-- Info -->
+        <div class="contact-info reveal" data-delay="0">
+          <div class="section-eyebrow light">Siguiente paso</div>
+          <h2>La auditoría<br><em>completamente gratis.</em></h2>
+          <p>Analizamos tu posicionamiento actual, detectamos las fugas de ventas y diseñamos un plan de acción personalizado. Sin compromiso, sin letra pequeña.</p>
+
+          <ul class="contact-features">
+            <li><i data-lucide="check-circle-2"></i> Análisis completo entregado en 48h</li>
+            <li><i data-lucide="check-circle-2"></i> Plan de acción con ROI estimado</li>
+            <li><i data-lucide="check-circle-2"></i> Cero compromiso de contratación</li>
+            <li><i data-lucide="check-circle-2"></i> Sesión de 30 min con Mariana en persona</li>
+          </ul>
+
+          <div class="contact-social-proof">
+            <div class="csp-faces">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80" alt="">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80" alt="">
+              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&q=80" alt="">
+            </div>
+            <div class="csp-text">
+              <strong>127 negocios ya trabajan con nosotros</strong>
+              Únete a los que ya están creciendo
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="contact-form-wrap reveal" data-delay="200">
+          <p class="form-title">Solicita tu auditoría gratuita ahora</p>
+          <form class="contact-form" id="contact-form">
+            <div class="input-group">
+              <input type="text" id="name" required placeholder=" ">
+              <label for="name">Tu nombre</label>
+            </div>
+            <div class="input-group">
+              <input type="text" id="company" required placeholder=" ">
+              <label for="company">Negocio / Empresa</label>
+            </div>
+            <div class="input-group">
+              <input type="email" id="email" required placeholder=" ">
+              <label for="email">Email de contacto</label>
+            </div>
+            <div class="input-group">
+              <input type="text" id="budget" placeholder=" ">
+              <label for="budget">Presupuesto mensual (opcional)</label>
+            </div>
+            <button type="submit" class="btn-cta submit-btn">
+              Solicitar Sesión Gratuita <i data-lucide="arrow-up-right"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FOOTER ======= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="/img/logo-circular.svg" alt="MO">
+        <span>Mariana<em>Ortega</em></span>
+      </div>
+      <nav class="footer-links">
+        <a href="#problema">El Problema</a>
+        <a href="#pilares">Servicios</a>
+        <a href="#resultados">Resultados</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <div class="footer-social">
+        <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
+        <a href="#" aria-label="TikTok"><i data-lucide="music-2"></i></a>
+      </div>
+      <div class="footer-copy">© 2026 MO Studio — Todos los derechos reservados</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
