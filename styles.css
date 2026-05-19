@@ -265,16 +265,25 @@ img { display: block; max-width: 100%; }
   min-height: 100svh;
   background: linear-gradient(135deg, #264653 0%, #1a3a4a 40%, #0f2530 100%);
   position: relative; overflow: hidden;
-  display: flex; align-items: center;
+  display: flex; align-items: flex-start;
   padding: clamp(6rem, 10vh, 7rem) 2rem clamp(2rem, 3.5vh, 3rem);
 }
 .hero-inner {
   max-width: 1200px; margin: 0 auto; width: 100%;
-  display: grid; grid-template-columns: 1fr; gap: clamp(1.25rem, 2.2vw, 2.25rem);
+  display: grid; grid-template-columns: 1fr;
+  gap: clamp(1.25rem, 2.2vw, 2.25rem);
   align-items: center; position: relative; z-index: 1;
 }
 @media (min-width: 1024px) {
-  .hero-inner { grid-template-columns: 1fr 1fr; }
+  .hero-inner {
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(2.25rem, 4.5vw, 4rem);
+    row-gap: clamp(1.25rem, 2.2vw, 2.25rem);
+  }
+  .hero-content,
+  .hero-visual {
+    min-width: 0;
+  }
 }
 
 /* Decoración hero */
@@ -351,20 +360,50 @@ img { display: block; max-width: 100%; }
 .hero-proof-text { font-size: 0.8rem; color: rgba(255,255,255,0.55); line-height: 1.5; }
 .hero-proof-text strong { display: block; color: rgba(255,255,255,0.9); font-weight: 700; }
 
-/* Hero visual — escena vectorial */
-.hero-visual { position: relative; }
+/* Hero visual — escena vectorial + macropad */
+.hero-visual {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
 .hero-vector-app {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: min(100%, 440px);
+  max-width: min(100%, clamp(18rem, 92vw, 27.5rem));
   margin-inline: auto;
 }
+@media (min-width: 640px) {
+  .hero-vector-app {
+    max-width: min(100%, clamp(22rem, 78vw, 28rem));
+  }
+}
+@media (min-width: 1024px) {
+  .hero-vector-app {
+    max-width: min(100%, 27.5rem);
+  }
+}
+@media (min-width: 1280px) {
+  .hero-vector-app {
+    max-width: min(100%, 28rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-visual {
+    padding-inline: clamp(0.75rem, 2.5vw, 2rem);
+    box-sizing: border-box;
+  }
+}
+
 .hero-stage-wrap {
   width: 100%;
   aspect-ratio: 810 / 1012.49997;
   position: relative;
+  overflow-anchor: none;
 }
 #hero-stage,
 .hero-stage {
@@ -373,7 +412,64 @@ img { display: block; max-width: 100%; }
   height: 100%;
   touch-action: manipulation;
   image-rendering: auto;
+  position: relative;
+  z-index: 0;
 }
+
+/* Macropad 3D (Three.js) sobre la escena SVG */
+.hero-macropad-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+.hero-macropad-canvas:active {
+  cursor: grabbing;
+}
+.hero-macropad-reactions {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout style;
+  isolation: isolate;
+}
+@keyframes hero-macropad-reaction-fly {
+  0% {
+    transform: translate(-50%, -100%) translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -100%) translate(var(--fly-x, 0px), var(--fly-y, -90px)) scale(1.4);
+    opacity: 0;
+  }
+}
+.hero-macropad-reactions .rp {
+  position: absolute;
+  font-size: clamp(26px, 5.5vw, 36px);
+  line-height: 1;
+  animation: hero-macropad-reaction-fly 0.8s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+.hero-macropad-hint {
+  margin: 0.75rem 0 0;
+  font-size: clamp(0.72rem, 2.1vw, 0.82rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.48);
+  text-align: center;
+  max-width: 36ch;
+  align-self: center;
+  padding-inline: 0.5rem;
+}
+
 .hero-vector-status {
   margin: 0.65rem 0 0;
   font-size: 0.7rem;
@@ -455,23 +551,236 @@ img { display: block; max-width: 100%; }
 .section-sub.on-dark { color: rgba(255,255,255,0.6); }
 
 /* ============================================================
-   PROBLEMA — solo titular (resto retirado)
+   PROBLEMA — carrusel 3D two-tone (compacto, sin recorte)
    ============================================================ */
-.problema { background: var(--bg); overflow: hidden; }
+.problema {
+  background: var(--bg);
+  overflow: visible;
+  padding-bottom: 4rem;
+}
+
+.problema-carousel {
+  position: relative;
+  width: 100%;
+  min-height: clamp(340px, 42vw, 400px);
+  height: auto;
+  margin-top: 2.5rem;
+  padding: 2.5rem 0 3.5rem;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.problema-carousel::before {
+  content: '';
+  position: absolute;
+  width: min(420px, 85vw);
+  height: 280px;
+  background: radial-gradient(ellipse, rgba(92, 182, 164, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.problema-carousel__inner {
+  --w: 125px;
+  --h: 185px;
+  --translateZ: calc(var(--w) + var(--h));
+  --rotateX: -15deg;
+  --perspective: 1000px;
+  --carousel-scale: clamp(0.72, 0.85, 1);
+  position: relative;
+  width: var(--w);
+  height: var(--h);
+  top: auto;
+  left: auto;
+  margin: 0;
+  z-index: 2;
+  flex-shrink: 0;
+  transform-style: preserve-3d;
+  transform: perspective(var(--perspective)) scale(var(--carousel-scale));
+  animation: problema-carousel-rotate 20s linear infinite;
+}
+
+@keyframes problema-carousel-rotate {
+  from {
+    transform: perspective(var(--perspective)) scale(var(--carousel-scale)) rotateX(var(--rotateX)) rotateY(0);
+  }
+  to {
+    transform: perspective(var(--perspective)) scale(var(--carousel-scale)) rotateX(var(--rotateX)) rotateY(1turn);
+  }
+}
+
+.problema-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(calc((360deg / var(--quantity)) * var(--index)))
+    translateZ(var(--translateZ));
+}
+
+.problema-card__face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 10px 28px rgba(38, 70, 83, 0.12),
+    0 2px 6px rgba(38, 70, 83, 0.06);
+}
+
+.problema-card__header {
+  position: relative;
+  flex: 0 0 42%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.problema-card__header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: var(--bg-card);
+  clip-path: ellipse(55% 100% at 50% 100%);
+  z-index: 1;
+}
+
+.problema-card[data-variant="dark"] .problema-card__header {
+  background: var(--bg-dark);
+  box-shadow: inset 0 -20px 40px rgba(92, 182, 164, 0.12);
+}
+
+.problema-card[data-variant="coral"] .problema-card__header {
+  background: linear-gradient(135deg, var(--coral-dark) 0%, var(--coral) 100%);
+}
+
+.problema-card__icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.22)) brightness(1.1);
+}
+
+.problema-card__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px 12px;
+  text-align: center;
+}
+
+.problema-card__text {
+  margin: 0;
+  font-family: var(--font-space);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.problema-card__text em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.problema-card[data-variant="dark"] .problema-card__text em {
+  color: var(--teal);
+}
+
+.problema-card[data-variant="coral"] .problema-card__text em {
+  color: var(--coral-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .problema-carousel__inner {
+    animation-duration: 40s;
+  }
+}
+
+@media (max-width: 640px) {
+  .problema-carousel {
+    min-height: 300px;
+    margin-top: 2rem;
+    padding: 2rem 0 2.5rem;
+  }
+
+  .problema-carousel__inner {
+    --w: 112px;
+    --h: 168px;
+    --carousel-scale: clamp(0.65, 0.78, 0.88);
+  }
+
+  .problema-card__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .problema-card__text {
+    font-size: 0.62rem;
+  }
+
+  .problema-card__body {
+    padding: 8px 10px 10px;
+  }
+}
 
 /* ============================================================
-   PILARES — PROCESO EN STEPS HORIZONTALES
+   PILARES — Command Grid 3D
    ============================================================ */
-.pilares { background: var(--bg-alt); overflow: hidden; }
-
-.steps-intro {
-  display: grid; grid-template-columns: 1fr; gap: 3rem;
-  align-items: center; margin-bottom: 5rem;
+@property --bd-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
-@media (min-width: 900px) { .steps-intro { grid-template-columns: 1fr 1fr; } }
 
-.steps-big-number {
-  font-family: var(--font-space); font-size: 12rem; font-weight: 900;
+@keyframes spin-border {
+  to { --bd-angle: 360deg; }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(-8deg); }
+}
+
+.pilares {
+  background: var(--bg-alt);
+  overflow: visible;
+  padding: 4.5rem 0;
+}
+
+.pilares .steps-intro {
+  display: grid; grid-template-columns: 1fr; gap: 2rem;
+  align-items: center; margin-bottom: 2.5rem;
+}
+@media (min-width: 900px) {
+  .pilares .steps-intro { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+
+.pilares .steps-big-number {
+  font-family: var(--font-space); font-size: 9rem; font-weight: 900;
   line-height: 1; color: transparent;
   -webkit-text-stroke: 2px rgba(92,182,164,0.15);
   user-select: none; pointer-events: none;
@@ -479,13 +788,19 @@ img { display: block; max-width: 100%; }
 
 /* Cards de pilares en grid asimétrico */
 .pilares-grid {
-  display: grid; gap: 1.5rem;
+  display: grid; gap: 1rem;
   grid-template-columns: 1fr;
-  margin-top: 2rem;
+  margin-top: 0;
+  perspective: 1200px;
+  overflow: visible;
 }
 @media (min-width: 768px) { .pilares-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1100px) {
-  .pilares-grid { grid-template-columns: repeat(12, 1fr); }
+  .pilares-grid {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0.65rem;
+    padding: 0.35rem;
+  }
   .pilar-1 { grid-column: span 7; }
   .pilar-2 { grid-column: span 5; }
   .pilar-3 { grid-column: span 5; }
@@ -493,65 +808,233 @@ img { display: block; max-width: 100%; }
 }
 
 .pilar-card {
-  border-radius: 1.75rem; padding: 2.5rem;
+  border-radius: 1.25rem; padding: 1.75rem;
   position: relative; overflow: hidden;
-  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  transition: transform 0.15s ease-out, box-shadow 0.4s var(--ease-out);
   cursor: default;
+  will-change: transform;
 }
-.pilar-card:hover { transform: translateY(-8px) scale(1.01); }
+
+/* Desktop: sección completa en viewport + cards compactas sin recorte */
+@media (min-width: 1100px) and (min-height: 700px) {
+  #pilares.pilares {
+    padding: clamp(2rem, 3.2vh, 2.75rem) 0;
+    min-height: 100svh;
+    max-height: 100svh;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  #pilares .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  #pilares .section-eyebrow {
+    margin-bottom: 0.65rem;
+    font-size: 0.7rem;
+  }
+
+  #pilares .section-title {
+    font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+    margin-bottom: 0.45rem;
+    line-height: 1.08;
+  }
+
+  #pilares .section-sub {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    max-width: 480px;
+  }
+
+  #pilares .steps-intro {
+    margin-bottom: 1rem;
+    gap: 1.25rem;
+  }
+
+  #pilares .steps-big-number {
+    font-size: clamp(4.5rem, 10vh, 6.5rem);
+  }
+
+  #pilares .pilares-grid {
+    gap: 0.55rem;
+    padding: 0.25rem;
+  }
+
+  #pilares .pilar-card {
+    padding: 0.95rem 1.05rem;
+    border-radius: 1.1rem;
+    min-height: unset;
+    height: auto;
+  }
+
+  #pilares .pilar-num {
+    margin-bottom: 0.45rem;
+    font-size: 0.58rem;
+  }
+
+  #pilares .pilar-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    margin-bottom: 0.5rem;
+  }
+
+  #pilares .pilar-icon i {
+    width: 18px;
+    height: 18px;
+  }
+
+  #pilares .pilar-card h3 {
+    font-size: 0.92rem;
+    margin-bottom: 0.3rem;
+  }
+
+  #pilares .pilar-card p {
+    font-size: 0.7rem;
+    line-height: 1.42;
+  }
+
+  #pilares .pilar-tag {
+    margin-top: 0.55rem;
+    font-size: 0.58rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  #pilares .pilar-spotlight {
+    width: 260px;
+    height: 260px;
+  }
+
+  #pilares .pilares-metrics {
+    margin-top: 0.65rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 1.1rem;
+    gap: 0.75rem;
+  }
+
+  #pilares .pm-val {
+    font-size: 1.85rem;
+  }
+
+  #pilares .pm-lbl {
+    font-size: 0.68rem;
+    margin-top: 0.2rem;
+  }
+
+  #pilares .pm-bar {
+    margin-top: 0.45rem;
+    height: 3px;
+  }
+}
+
+.pilar-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit; padding: 2px;
+  background: conic-gradient(
+    from var(--bd-angle),
+    transparent 25%,
+    var(--teal) 45%,
+    var(--teal-light) 55%,
+    transparent 75%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s;
+  animation: spin-border 3s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.pilar-card:hover::after,
+.pilar-card.is-hover::after { opacity: 1; }
+
+.pilar-spotlight {
+  position: absolute;
+  width: 360px; height: 360px;
+  left: 0; top: 0;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(92,182,164,0.22) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+  z-index: 1;
+}
+.pilar-card:hover .pilar-spotlight,
+.pilar-card.is-hover .pilar-spotlight { opacity: 1; }
+.style-coral .pilar-spotlight {
+  background: radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%);
+}
+
+.pilar-card > :not(.pilar-spotlight) { position: relative; z-index: 1; }
 
 .pilar-card.style-teal {
   background: var(--bg-dark);
   border: 1px solid rgba(92,182,164,0.2);
 }
-.pilar-card.style-teal:hover { box-shadow: 0 20px 60px rgba(92,182,164,0.15); }
+.pilar-card.style-teal:hover,
+.pilar-card.style-teal.is-hover { box-shadow: 0 20px 60px rgba(92,182,164,0.15); }
 
 .pilar-card.style-light {
   background: var(--bg-card);
   border: 1.5px solid var(--border);
 }
-.pilar-card.style-light:hover { box-shadow: 0 20px 60px rgba(38,70,83,0.08); border-color: var(--border-teal); }
+.pilar-card.style-light:hover,
+.pilar-card.style-light.is-hover { box-shadow: 0 20px 60px rgba(38,70,83,0.08); border-color: var(--border-teal); }
 
 .pilar-card.style-coral {
   background: linear-gradient(135deg, #f4a261, #e76f51);
   border: none;
 }
-.pilar-card.style-coral:hover { box-shadow: 0 20px 60px var(--coral-glow); }
+.pilar-card.style-coral:hover,
+.pilar-card.style-coral.is-hover { box-shadow: 0 20px 60px var(--coral-glow); }
 
 .pilar-num {
   font-family: var(--font-space); font-size: 0.65rem; font-weight: 900;
-  letter-spacing: 0.2em; margin-bottom: 1.5rem; display: block;
+  letter-spacing: 0.2em; margin-bottom: 1rem; display: block;
 }
 .style-teal .pilar-num { color: rgba(92,182,164,0.5); }
 .style-light .pilar-num { color: var(--teal); opacity: 0.6; }
 .style-coral .pilar-num { color: rgba(255,255,255,0.5); }
 
 .pilar-icon {
-  width: 56px; height: 56px; border-radius: 16px;
+  width: 52px; height: 52px; border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   transition: transform 0.3s var(--ease-spring);
 }
-.pilar-card:hover .pilar-icon { transform: scale(1.1) rotate(-5deg); }
+.pilar-card:hover .pilar-icon,
+.pilar-card.is-hover .pilar-icon { animation: iconFloat 2s ease-in-out infinite; }
 .style-teal .pilar-icon { background: rgba(92,182,164,0.15); color: var(--teal-light); }
 .style-light .pilar-icon { background: var(--teal-dim); color: var(--teal-dark); }
 .style-coral .pilar-icon { background: rgba(255,255,255,0.2); color: #fff; }
 
 .pilar-card h3 {
-  font-family: var(--font-space); font-size: 1.3rem; font-weight: 800;
-  margin-bottom: 0.75rem; letter-spacing: -0.02em;
+  font-family: var(--font-space); font-size: 1.15rem; font-weight: 800;
+  margin-bottom: 0.5rem; letter-spacing: -0.02em;
 }
 .style-teal h3 { color: #fff; }
 .style-light h3 { color: var(--text); }
 .style-coral h3 { color: #fff; }
 
-.pilar-card p { font-size: 0.875rem; line-height: 1.7; }
+.pilar-card p { font-size: 0.82rem; line-height: 1.6; }
 .style-teal p { color: rgba(255,255,255,0.55); }
 .style-light p { color: var(--text-muted); }
 .style-coral p { color: rgba(255,255,255,0.8); }
 
 .pilar-tag {
-  display: inline-block; margin-top: 1.5rem;
+  display: inline-block; margin-top: 1rem;
   border-radius: 100px; font-family: var(--font-space);
   font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 0.3rem 0.85rem;
@@ -562,11 +1045,11 @@ img { display: block; max-width: 100%; }
 
 /* Métrica central integrada */
 .pilares-metrics {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   background: var(--bg-card); border: 1.5px solid var(--border);
-  border-radius: 1.75rem; padding: 2.5rem;
+  border-radius: 1.5rem; padding: 1.5rem 2.5rem;
   display: grid; grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 @media (min-width: 768px) { .pilares-metrics { grid-template-columns: repeat(3, 1fr); } }
 
@@ -1056,7 +1539,7 @@ img { display: block; max-width: 100%; }
   #typewriter-line { white-space: normal; }
   .section { padding: 5rem 0; }
   .contact-form-wrap { padding: 1.75rem 1.25rem; }
-  .steps-big-number { font-size: 7rem; }
+  .pilares .steps-big-number { font-size: 7rem; }
 }
 
 /* ============================================================

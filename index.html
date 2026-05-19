@@ -2,8 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <style>html{background-color:#FAF9F7}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mariana Ortega — Sales Architect</title>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -116,7 +126,10 @@
               <g id="hero-scene-layers"></g>
               <g id="hero-scene-objects" class="is-hidden"></g>
             </svg>
+            <canvas id="hero-macropad-canvas" class="hero-macropad-canvas" aria-label="Macropad interactivo 3D"></canvas>
+            <div id="hero-macropad-reactions" class="hero-macropad-reactions" aria-hidden="true"></div>
           </div>
+          <p class="hero-macropad-hint">Haz clic en las teclas · arrastra para girar la vista</p>
         </div>
       </div>
     </div>
@@ -157,6 +170,14 @@
       <h2 class="section-title reveal">
         Pagar poco por "gestionar<br>las redes" <em>te está costando</em><br>una fortuna.
       </h2>
+      <div
+        class="problema-carousel reveal"
+        data-delay="150"
+        id="problema-carousel"
+        aria-label="Problemas habituales al externalizar redes sociales"
+      >
+        <div class="problema-carousel__inner"></div>
+      </div>
     </div>
   </section>
 
@@ -182,34 +203,38 @@
       <div class="pilares-grid reveal" data-delay="300">
 
         <div class="pilar-card style-teal pilar-1">
+          <div class="pilar-spotlight" aria-hidden="true"></div>
           <span class="pilar-num">01</span>
           <div class="pilar-icon"><i data-lucide="zap"></i></div>
           <h3>Automatización con IA</h3>
-          <p>Flujos inteligentes que responden, califican y cierran leads mientras tú duermes. WhatsApp, email y SMS perfectamente integrados para no perder ninguna oportunidad.</p>
+          <p>Flujos que responden, califican y cierran leads 24/7. WhatsApp, email y SMS integrados sin perder oportunidades.</p>
           <span class="pilar-tag">Respuesta 24/7</span>
         </div>
 
         <div class="pilar-card style-light pilar-2">
+          <div class="pilar-spotlight" aria-hidden="true"></div>
           <span class="pilar-num">02</span>
           <div class="pilar-icon"><i data-lucide="map-pin"></i></div>
           <h3>Dominio en Google Maps</h3>
-          <p>Optimización técnica de GMB para aparecer primero cuando alguien busca tu servicio en tu ciudad. Más reseñas, más llamadas, más clientes.</p>
+          <p>Optimización de GMB para salir primero en tu ciudad. Más reseñas, más llamadas y más clientes.</p>
           <span class="pilar-tag">SEO Local</span>
         </div>
 
         <div class="pilar-card style-coral pilar-3">
+          <div class="pilar-spotlight" aria-hidden="true"></div>
           <span class="pilar-num">03</span>
           <div class="pilar-icon"><i data-lucide="credit-card"></i></div>
           <h3>Fidelización Digital</h3>
-          <p>Tarjetas de fidelización en el Wallet del móvil. Notificaciones push directas al cliente sin necesidad de apps. El marketing más cercano que existe.</p>
+          <p>Tarjetas en el Wallet con push directo al cliente. Sin apps: el marketing más cercano que existe.</p>
           <span class="pilar-tag">Wallet Nativo</span>
         </div>
 
         <div class="pilar-card style-teal pilar-4">
+          <div class="pilar-spotlight" aria-hidden="true"></div>
           <span class="pilar-num">04</span>
           <div class="pilar-icon"><i data-lucide="video"></i></div>
           <h3>Video de Alta Conversión</h3>
-          <p>Reels y Shorts con ganchos psicológicos testados que retienen, convierten y posicionan tu autoridad de marca. Cada segundo cuenta para captar la atención de tu cliente ideal.</p>
+          <p>Reels y Shorts con ganchos que retienen y convierten. Cada segundo cuenta para captar a tu cliente ideal.</p>
           <span class="pilar-tag">Alta Conversión</span>
         </div>
 
@@ -305,7 +330,7 @@
         <!-- MÓVIL -->
         <div class="mockup-wrapper">
           <div class="mockup-header">
-            <h3><i data-lucide="instagram"></i> Social Funnels</h3>
+            <h3><i data-lucide="share-2"></i> Social Funnels</h3>
             <div class="mockup-controls">
               <button id="mob-prev"><i data-lucide="chevron-left"></i></button>
               <button id="mob-next"><i data-lucide="chevron-right"></i></button>
@@ -514,8 +539,8 @@
         <a href="#contacto">Contacto</a>
       </nav>
       <div class="footer-social">
-        <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin"></i></a>
+        <a href="#" aria-label="Instagram"><i data-lucide="camera"></i></a>
+        <a href="#" aria-label="LinkedIn"><i data-lucide="briefcase"></i></a>
         <a href="#" aria-label="TikTok"><i data-lucide="music-2"></i></a>
       </div>
       <div class="footer-copy">© 2026 MO Studio — Todos los derechos reservados</div>
